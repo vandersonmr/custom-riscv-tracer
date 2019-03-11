@@ -188,6 +188,12 @@ namespace riscv {
 			}
 		}
 
+		unsigned long long get_touched_addrs(T &dec)
+		{
+      return P::ireg[dec.rs1].r.xu.val + dec.imm;
+		}
+
+
 		std::string format_operands(T &dec)
 		{
 			size_t reg;
@@ -246,6 +252,19 @@ namespace riscv {
 			return operands;
 		}
 
+
+    bool is_load(std::string inst) {
+      for (std::string opcode : {"lb", "lh", "lw", "lbu", "lhu", "lwu", "ld"})
+        if (inst.find(opcode) == 0) return true;
+      return false;
+    }
+
+    bool is_load_or_store(std::string inst) {
+      for (std::string opcode : {"lb", "lh", "lw", "lbu", "lhu", "lwu", "ld", "sd", "sb", "sh", "sw", "flw", "fsw", "fld", "fsd"})
+        if (inst.find(opcode) == 0) return true;
+      return false;
+    }
+
 		void print_log(decode_type &dec, inst_t inst)
 		{
 			static const char *fmt_32 = "%019llu core-%-4zu:%08llx (%s) %-30s %s\n";
@@ -266,7 +285,9 @@ namespace riscv {
         trace_i.addr = addr_t(P::pc);
         trace_i.opcode = inst;
         trace_i.length = inst_length(inst);
-        trace_i.mem_addr = 0; // TODO;
+        if (is_load_or_store(disasm_inst_simple(dec))) printf("%s\n", disasm_inst_simple(dec).c_str());
+
+        trace_i.mem_addr = is_load_or_store(disasm_inst_simple(dec)) ? get_touched_addrs(dec) : 0;
         
         trace_output->write_trace_item(trace_i);
 
