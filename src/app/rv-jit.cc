@@ -363,9 +363,7 @@ struct rv_jit_emulator
 	}
 };
 
-
 /* program main */
-
 int main(int argc, const char *argv[], const char* envp[])
 {
 	rv_jit_emulator jit;

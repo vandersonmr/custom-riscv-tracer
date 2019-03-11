@@ -5,6 +5,8 @@
 #ifndef rv_processor_impl_h
 #define rv_processor_impl_h
 
+#include "../traceio/trace_io.h"
+
 namespace riscv {
 
 	/* Interpreter Exit Causes */
@@ -54,6 +56,7 @@ namespace riscv {
 		hist_reg_map_t hist_reg;
 		hist_inst_map_t hist_inst;
 		std::function<const char*(addr_t)> symlookup;
+    std::unique_ptr<trace_io::raw_output_pipe_t> trace_output; 
 
 		processor_impl() : P()
 		{
@@ -62,6 +65,10 @@ namespace riscv {
 			hist_reg.set_empty_key(-1);
 			hist_inst.set_empty_key(-1);
 		}
+
+    void set_log_output(const string& output_filename) {
+      trace_output = std::unique_ptr<trace_io::raw_output_pipe_t>(new trace_io::raw_output_pipe_t(output_filename));
+    }
 
 		std::string format_inst(inst_t inst)
 		{
@@ -253,8 +260,19 @@ namespace riscv {
 				if (symlookup) printf("%32s ", symlookup(P::pc));
 				std::string args = disasm_inst_simple(dec);
 				std::string op_args = (P::log & proc_log_operands) ? format_operands(dec) : std::string();
-				printf(P::xlen == 32 ? fmt_32 : P::xlen == 64 ? fmt_64 : fmt_128,
-					P::instret, P::hart_id, addr_t(P::pc), format_inst(inst).c_str(), args.c_str(), op_args.c_str());
+
+        trace_io::trace_item_t trace_i;
+        trace_i.type = 2;
+        trace_i.addr = addr_t(P::pc);
+        trace_i.opcode = inst;
+        trace_i.length = inst_length(inst);
+        trace_i.mem_addr = 0; // TODO;
+        
+        trace_output->write_trace_item(trace_i);
+
+//				printf(P::xlen == 32 ? fmt_32 : P::xlen == 64 ? fmt_64 : fmt_128,
+//					P::instret, P::hart_id, addr_t(P::pc), format_inst(inst).c_str(), args.c_str(), op_args.c_str());
+
 				fesetexceptflag(&flags, FE_ALL_EXCEPT);
 			}
 			if (P::log & proc_log_int_reg) print_int_registers();

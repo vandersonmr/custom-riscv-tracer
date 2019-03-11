@@ -65,6 +65,8 @@ set(rv_bin_SOURCES
 	src/app/rv-pte.cc
 	src/app/rv-bin.cc)
 
+set(traceio_SOURCES src/traceio/trace_io.cpp)
+
 include_directories(
 	src/asm
 	src/abi
@@ -77,6 +79,7 @@ include_directories(
 	src/model
 	src/rom
 	src/util
+  src/traceio
 	third_party/asmjit/src/asmjit)
 
 if("${CMAKE_SYSTEM_NAME}" MATCHES "Linux")
@@ -102,6 +105,7 @@ add_library(riscv_gen ${libriscv_gen_SOURCES})
 add_library(riscv_elf ${libriscv_elf_SOURCES})
 add_library(riscv_model ${libriscv_model_SOURCES})
 add_library(riscv_util ${libriscv_util_SOURCES})
+add_library(traceio ${traceio_SOURCES})
 
 add_executable(rv-bin ${rv_bin_SOURCES})
 target_link_libraries(rv-bin riscv_asm riscv_elf riscv_util)
@@ -110,10 +114,10 @@ add_executable(rv-meta src/app/rv-meta.cc)
 target_link_libraries(rv-meta riscv_model riscv_gen riscv_util)
 
 add_executable(rv-sys src/app/rv-sys.cc)
-target_link_libraries(rv-sys ncurses riscv_asm riscv_elf riscv_util)
+target_link_libraries(rv-sys ncurses riscv_asm riscv_elf riscv_util traceio)
 
 add_executable(rv-sim src/app/rv-sim.cc)
-target_link_libraries(rv-sim ncurses riscv_asm riscv_elf riscv_util ${MMAP_LIBS})
+target_link_libraries(rv-sim ncurses riscv_asm riscv_elf riscv_util traceio ${MMAP_LIBS})
 
 add_executable(rv-jit src/app/rv-jit.cc)
-target_link_libraries(rv-jit riscv_asm riscv_elf riscv_util asmjit ${MMAP_LIBS})
+target_link_libraries(rv-jit riscv_asm riscv_elf riscv_util asmjit traceio ${MMAP_LIBS})

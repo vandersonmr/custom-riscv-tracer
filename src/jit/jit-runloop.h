@@ -5,6 +5,8 @@
 #ifndef rv_jit_runloop_h
 #define rv_jit_runloop_h
 
+#include <ctime>
+
 namespace riscv {
 
 	struct jit_singleton
@@ -152,6 +154,7 @@ namespace riscv {
 		{
 			u32 logsave = P::log;
 			size_t count = inst_step;
+      P::set_log_output("trace_"+std::to_string(std::time(nullptr)));
 			for (;;) {
 				switch (ex) {
 					case exit_cause_continue:
@@ -543,7 +546,7 @@ namespace riscv {
 						 (new_offset = inst_fence_i(dec, pc_offset)) != typename P::ux(-1) ||
 						 (new_offset = P::inst_priv(dec, pc_offset)) != typename P::ux(-1))
 				{
-					if (P::log & ~(proc_log_hist_pc | proc_log_jit_trap)) P::print_log(dec, inst);
+          if (P::log & ~(proc_log_hist_pc | proc_log_jit_trap)) P::print_log(dec, inst); 
 					P::pc += new_offset;
 					P::instret++;
 				} else {
