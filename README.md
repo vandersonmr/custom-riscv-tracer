@@ -1,3 +1,10 @@
+custom-riscv-tracer
+===========
+
+This is the rv8, a RISC-V emulator,  modified to collect RISC-V compressed traces. Originally, -l dumps every single emulated instruction in a verbose mode into stdout. In this version, -l dumps every single instruction into a compressed file in a more organized way. This compressed files can be read and write using the trace_io.h/cpp files in src/traceio. 
+
+These outputted compressed traces are in the format which can be used with our JIT/DBT simulator, RAIN (https://github.com/vandersonmr/Rain3). 
+
 rv8
 ===========
 
