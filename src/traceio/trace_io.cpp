@@ -139,15 +139,6 @@ void raw_output_pipe_t::write_trace_item(trace_item_t& item)
 	   << "fwrite (...) returned error!" << endl;
       exit(1);
   }
-  if (item.type != 2) {
-    // memory address 
-    if (fwrite(&item.addr,sizeof(unsigned long long),1,fh) != 1) {
-      cerr << "Error: Could not write address field to trace file (type = " 
-	   << item.type << ")." << endl; 
-      exit(1);
-    }
-  }
-  else {
     if (fwrite(&item.addr,sizeof(unsigned long long),1,fh) != 1) {
       cerr << "Error: Could not write address field to output "
 	   << "trace (type = 2)." << endl;
@@ -168,5 +159,4 @@ void raw_output_pipe_t::write_trace_item(trace_item_t& item)
 	   << "trace (type = 2)." << endl;
       exit(1);
     }
-  }
 }

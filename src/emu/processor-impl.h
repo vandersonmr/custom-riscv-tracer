@@ -6,6 +6,7 @@
 #define rv_processor_impl_h
 
 #include "../traceio/trace_io.h"
+#include <iostream>
 
 namespace riscv {
 
@@ -252,15 +253,38 @@ namespace riscv {
 			return operands;
 		}
 
+    bool is_call(std::string inst) {
+      for (std::string opcode : {"jal "})
+        if (inst.find(opcode) == 0) return true;
+      return false;
+    }
+
+    bool is_ret(std::string inst) {
+      for (std::string opcode : {"ret "})
+        if (inst.find(opcode) == 0) return true;
+      return false;
+    }
+
+    bool is_ibranch(std::string inst) {
+      for (std::string opcode : {"jalr "})
+        if (inst.find(opcode) == 0) return true;
+      return false;
+    }
+
+    bool is_branch(std::string inst) {
+      for (std::string opcode : {"beq ", "bne ", "blt ", "bge ", "bltu ", "bgeu ", "beqz ", "bnez ", "blez ", "bgez ", "bltz ", "bgtz ", "bgt ", "ble ", "bgtu ", "bleu ", "j ", "jr "})
+        if (inst.find(opcode) == 0) return true;
+      return false;
+    }
 
     bool is_load(std::string inst) {
-      for (std::string opcode : {"lb", "lh", "lw", "lbu", "lhu", "lwu", "ld"})
+      for (std::string opcode : {"lb ", "lh ", "lw ", "lbu ", "lhu ", "lwu ", "ld "})
         if (inst.find(opcode) == 0) return true;
       return false;
     }
 
     bool is_load_or_store(std::string inst) {
-      for (std::string opcode : {"lb", "lh", "lw", "lbu", "lhu", "lwu", "ld", "sd", "sb", "sh", "sw", "flw", "fsw", "fld", "fsd"})
+      for (std::string opcode : {"lb ", "lh ", "lw ", "lbu ", "lhu ", "lwu ", "ld ", "sd ", "sb ", "sh ", "sw ", "flw ", "fsw ", "fld ", "fsd "})
         if (inst.find(opcode) == 0) return true;
       return false;
     }
@@ -281,14 +305,20 @@ namespace riscv {
 				std::string op_args = (P::log & proc_log_operands) ? format_operands(dec) : std::string();
 
         trace_io::trace_item_t trace_i;
-        trace_i.type = 2;
+
+        if (is_ibranch(args)) trace_i.type = 5;
+        else if (is_call(args)) trace_i.type = 4;
+        else if (is_ret(args)) trace_i.type = 3;
+        else if (is_branch(args)) trace_i.type = 6;
+        else if (is_load(args)) trace_i.type = 7;
+        else if (is_load_or_store(args)) trace_i.type = 8;
+        else trace_i.type = 2;
+
         trace_i.addr = addr_t(P::pc);
         trace_i.opcode = inst;
         trace_i.length = inst_length(inst);
-        if (is_load_or_store(disasm_inst_simple(dec))) printf("%s\n", disasm_inst_simple(dec).c_str());
+        trace_i.mem_addr = is_load_or_store(args) ? get_touched_addrs(dec) : is_branch(args) ? addr_t(P::pc)+dec.imm : 0;
 
-        trace_i.mem_addr = is_load_or_store(disasm_inst_simple(dec)) ? get_touched_addrs(dec) : 0;
-        
         trace_output->write_trace_item(trace_i);
 
 //				printf(P::xlen == 32 ? fmt_32 : P::xlen == 64 ? fmt_64 : fmt_128,

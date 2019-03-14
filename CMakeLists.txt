@@ -107,17 +107,17 @@ add_library(riscv_model ${libriscv_model_SOURCES})
 add_library(riscv_util ${libriscv_util_SOURCES})
 add_library(traceio ${traceio_SOURCES})
 
-add_executable(rv-bin ${rv_bin_SOURCES})
-target_link_libraries(rv-bin riscv_asm riscv_elf riscv_util)
+#add_executable(rv-bin ${rv_bin_SOURCES})
+#target_link_libraries(rv-bin riscv_asm riscv_elf riscv_util)
 
-add_executable(rv-meta src/app/rv-meta.cc)
-target_link_libraries(rv-meta riscv_model riscv_gen riscv_util)
+#add_executable(rv-meta src/app/rv-meta.cc)
+#target_link_libraries(rv-meta riscv_model riscv_gen riscv_util)
 
-add_executable(rv-sys src/app/rv-sys.cc)
-target_link_libraries(rv-sys ncurses riscv_asm riscv_elf riscv_util traceio)
+#add_executable(rv-sys src/app/rv-sys.cc)
+#target_link_libraries(rv-sys ncurses riscv_asm riscv_elf riscv_util traceio)
 
-add_executable(rv-sim src/app/rv-sim.cc)
-target_link_libraries(rv-sim ncurses riscv_asm riscv_elf riscv_util traceio ${MMAP_LIBS})
+#add_executable(rv-sim src/app/rv-sim.cc)
+#target_link_libraries(rv-sim ncurses riscv_asm riscv_elf riscv_util traceio ${MMAP_LIBS})
 
 add_executable(rv-jit src/app/rv-jit.cc)
 target_link_libraries(rv-jit riscv_asm riscv_elf riscv_util asmjit traceio ${MMAP_LIBS})
